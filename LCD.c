@@ -89,14 +89,38 @@ void LCD_WRITE_STRING(char string[]){
 }
 
 void LCD_CURSOR_MOVE(unsigned char line, unsigned char index){
-	if (is_init == 1 || COMPILER_ERRORS == 0){
-		if (0 == line)
-		SEND_COMMAND(FORCE_RETURN_FIRST_LINE + index % MAX_COL);
-		else
-		SEND_COMMAND(FORCE_RETURN_SECOND_LINE + index % MAX_COL);
-	}
-	else{
-		LCD_init();
-		LCD_CURSOR_MOVE(line, index);
-	}
+	
+	#if LIMIT_WRITES == 0
+		if (is_init == 1 || COMPILER_ERRORS == 0){
+			if (0 == line)
+			SEND_COMMAND(FORCE_RETURN_FIRST_LINE + index;
+			else
+			SEND_COMMAND(FORCE_RETURN_SECOND_LINE + index);
+		}
+		else{
+			LCD_init();
+			LCD_CURSOR_MOVE(line, index);
+		}
+	#else
+		if (is_init == 1 || COMPILER_ERRORS == 0){
+			if (0 == line)
+			SEND_COMMAND(FORCE_RETURN_FIRST_LINE + index % MAX_COL);
+			else
+			SEND_COMMAND(FORCE_RETURN_SECOND_LINE + index % MAX_COL);
+		}
+		else{
+			LCD_init();
+			LCD_CURSOR_MOVE(line, index);
+		}
+	#endif
+}
+
+void LCD_WRITE_CUSTOM_CHAR(unsigned char location, unsigned char *character)
+{
+    if(location<8)
+    {
+     SEND_COMMAND(0x40 | (location << 3));  // Command 0x40 and onwards forces  the device to point CGRAM address 					
+       for(unsigned char i = 0; i < 8; i++)  /* Write 8 byte for generation of 1 character */
+           LCD_WRITE_CHAR(character[i]);  
+    }   
 }
